@@ -12,7 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        submodules: true # Ensure submodules are checked out
+        submodules: recursive # Ensure all submodules are checked out recursively
 
     - name: Update submodules recursively
       run: git submodule update --init --recursive
@@ -25,17 +25,22 @@ jobs:
 
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
+      with:
+        ndk: '25.1.8937393'  # Specify the NDK version you need
 
-    - name: Configure local.properties
+    - name: Create local.properties
+      working-directory: moonlight-android
       run: |
-        echo "sdk.dir=$ANDROID_SDK_ROOT" > moonlight-android/local.properties
-        echo "ndk.dir=$ANDROID_NDK_ROOT" >> moonlight-android/local.properties
+        echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+        echo "ndk.dir=$ANDROID_NDK_ROOT" >> local.properties
 
     - name: Prepare Gradle Wrapper
-      run: cd moonlight-android && ./gradlew wrapper
+      working-directory: moonlight-android
+      run: ./gradlew wrapper
 
     - name: Build Release APK
-      run: cd moonlight-android && ./gradlew assembleRelease
+      working-directory: moonlight-android
+      run: ./gradlew assembleRelease
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v3
