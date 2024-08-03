@@ -1,9 +1,8 @@
-name: Android Manual CI
+name: Android Release Build
 
 on:
-  # Manual trigger
   workflow_dispatch:
-  
+
 jobs:
   build:
 
@@ -22,16 +21,15 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
 
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Prepare Gradle Wrapper
+      run: ./gradlew wrapper
 
-    - name: Run Unit Tests
-      run: ./gradlew test
+    - name: Build Release APK
+      env:
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      run: ./gradlew assembleRelease
 
-    - name: Run Instrumented Tests
-      run: ./gradlew connectedAndroidTest
-
-    - name: Upload APK
+    - name: Upload Release APK
       uses: actions/upload-artifact@v3
       with:
         name: app-release
